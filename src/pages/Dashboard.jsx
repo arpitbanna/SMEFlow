@@ -87,6 +87,7 @@ function Dashboard() {
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
+    const [sortBy, setSortBy] = useState('newest');
 
     const handleLogout = () => {
         logout();
@@ -135,9 +136,9 @@ function Dashboard() {
         loadInquiries();
     }, [showToast]);
 
-    /* ===== FILTERED DATA ===== */
+    /* ===== FILTERED + SORTED DATA ===== */
     const filteredInquiries = useMemo(() => {
-        return inquiries.filter(inq => {
+        const filtered = inquiries.filter(inq => {
             const statusMatch = statusFilter === 'all' || (inq.status || 'not_started') === statusFilter;
             const query = searchQuery.toLowerCase().trim();
             if (!query) return statusMatch;
@@ -148,7 +149,21 @@ function Dashboard() {
                 (inq.message || '').toLowerCase().includes(query);
             return statusMatch && searchMatch;
         });
-    }, [inquiries, searchQuery, statusFilter]);
+
+        return [...filtered].sort((a, b) => {
+            switch (sortBy) {
+                case 'newest': return new Date(b.created_at) - new Date(a.created_at);
+                case 'oldest': return new Date(a.created_at) - new Date(b.created_at);
+                case 'name_asc': return (a.name || '').localeCompare(b.name || '');
+                case 'name_desc': return (b.name || '').localeCompare(a.name || '');
+                case 'status': {
+                    const order = { not_started: 0, in_process: 1, done: 2 };
+                    return (order[a.status || 'not_started'] ?? 0) - (order[b.status || 'not_started'] ?? 0);
+                }
+                default: return 0;
+            }
+        });
+    }, [inquiries, searchQuery, statusFilter, sortBy]);
 
     /* ===== STATUS COUNTS ===== */
     const statusCounts = useMemo(() => {
@@ -321,6 +336,45 @@ function Dashboard() {
                                     {opt.icon} {opt.label} ({statusCounts[opt.value]})
                                 </button>
                             ))}
+                        </div>
+
+                        {/* Sort Dropdown */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ opacity: 0.4, flexShrink: 0 }}>
+                                <path d="M11 5H21" stroke="#FFF" strokeWidth="2" strokeLinecap="round"/>
+                                <path d="M11 9H18" stroke="#FFF" strokeWidth="2" strokeLinecap="round"/>
+                                <path d="M11 13H15" stroke="#FFF" strokeWidth="2" strokeLinecap="round"/>
+                                <path d="M3 4V20" stroke="#FFF" strokeWidth="2" strokeLinecap="round"/>
+                                <path d="M3 20L6 17" stroke="#FFF" strokeWidth="2" strokeLinecap="round"/>
+                                <path d="M3 20L0 17" stroke="#FFF" strokeWidth="2" strokeLinecap="round"/>
+                            </svg>
+                            <select
+                                value={sortBy}
+                                onChange={(e) => setSortBy(e.target.value)}
+                                style={{
+                                    padding: '8px 12px',
+                                    backgroundColor: 'rgba(255,255,255,0.04)',
+                                    border: '1.5px solid rgba(255,255,255,0.1)',
+                                    borderRadius: '8px',
+                                    color: '#E8E6DF',
+                                    fontSize: '0.78rem',
+                                    fontWeight: '600',
+                                    cursor: 'pointer',
+                                    outline: 'none',
+                                    appearance: 'none',
+                                    WebkitAppearance: 'none',
+                                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
+                                    backgroundRepeat: 'no-repeat',
+                                    backgroundPosition: 'right 10px center',
+                                    paddingRight: '30px'
+                                }}
+                            >
+                                <option value="newest" style={{ backgroundColor: '#1E2128' }}>Newest First</option>
+                                <option value="oldest" style={{ backgroundColor: '#1E2128' }}>Oldest First</option>
+                                <option value="name_asc" style={{ backgroundColor: '#1E2128' }}>Name A → Z</option>
+                                <option value="name_desc" style={{ backgroundColor: '#1E2128' }}>Name Z → A</option>
+                                <option value="status" style={{ backgroundColor: '#1E2128' }}>Status</option>
+                            </select>
                         </div>
                     </div>
                 </motion.div>
