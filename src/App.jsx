@@ -62,8 +62,16 @@ function App() {
                         </motion.div>
                     ) : (
                         <Routes key="main-routes">
+                            {/* ===== STANDALONE ROUTES (no Layout wrapper) ===== */}
                             <Route path="/landing-page" element={<LandingPage />} />
                             <Route path="/login" element={<Login />} />
+                            <Route path="/dashboard" element={
+                                <ProtectedRoute>
+                                    <Dashboard />
+                                </ProtectedRoute>
+                            } />
+
+                            {/* ===== MAIN SITE ROUTES (with Layout: Header + Footer) ===== */}
                             <Route path="/" element={<Layout />}>
                                 <Route index element={<Home />} />
                                 <Route path="features" element={<Features />} />
@@ -72,11 +80,6 @@ function App() {
                                 <Route path="contact" element={<Contact />} />
                                 <Route path="automated-follow-ups" element={<AutomatedFollowUps />} />
                                 <Route path="lead-management" element={<LeadManagement />} />
-                                <Route path="dashboard" element={
-                                    <ProtectedRoute>
-                                        <Dashboard />
-                                    </ProtectedRoute>
-                                } />
                             </Route>
                         </Routes>
                     )}

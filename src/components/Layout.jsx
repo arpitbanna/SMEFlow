@@ -20,7 +20,6 @@ function Layout() {
             case '/automated-follow-ups': return 'FOLLOW UPS';
             case '/landing-page': return 'WELCOME';
             case '/lead-management': return 'LEADS';
-            case '/dashboard': return 'DASHBOARD';
             default: return 'SMEFLOW';
         }
     };

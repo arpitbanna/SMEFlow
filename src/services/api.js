@@ -1,7 +1,9 @@
+/* ===== SUPABASE API SERVICE ===== */
 import supabase from '../lib/supabase';
 
 /* ===== INQUIRIES ===== */
 
+/** Fetch all inquiries, newest first. */
 export const fetchInquiries = async () => {
     const { data, error } = await supabase
         .from('inquiries')
@@ -15,6 +17,7 @@ export const fetchInquiries = async () => {
     return data;
 };
 
+/** Submit a new inquiry from the Contact form. */
 export const postInquiry = async (inquiryData) => {
     const { data, error } = await supabase
         .from('inquiries')
@@ -33,6 +36,7 @@ export const postInquiry = async (inquiryData) => {
     return data;
 };
 
+/** Update the status of an inquiry (not_started | in_process | done). */
 export const updateInquiryStatus = async (id, status) => {
     const { data, error } = await supabase
         .from('inquiries')
@@ -42,21 +46,6 @@ export const updateInquiryStatus = async (id, status) => {
 
     if (error) {
         console.error('Error updating inquiry status:', error);
-        throw error;
-    }
-    return data;
-};
-
-/* ===== LEADS ===== */
-
-export const fetchLeads = async () => {
-    const { data, error } = await supabase
-        .from('leads')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-    if (error) {
-        console.error('Error fetching leads:', error);
         throw error;
     }
     return data;
