@@ -2,11 +2,13 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 
 /* ===== HEADER COMPONENT ===== */
 function Header({ title }) {
     /* ===== STATE & HOOKS ===== */
     const { showToast } = useToast();
+    const { isAuthenticated } = useAuth();
     const location = useLocation();
     const [scrolled, setScrolled] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
@@ -62,6 +64,9 @@ function Header({ title }) {
                     <Link to="/pricing" className={location.pathname === '/pricing' ? 'active' : ''}>PRICING</Link>
                     <Link to="/about" className={location.pathname === '/about' ? 'active' : ''}>ABOUT</Link>
                     <Link to="/contact" className={location.pathname === '/contact' ? 'active' : ''}>CONTACT</Link>
+                    {isAuthenticated && (
+                        <Link to="/dashboard" className={location.pathname === '/dashboard' ? 'active' : ''} style={{ color: "#F0B90B" }}>DASHBOARD</Link>
+                    )}
                 </div>
 
                 <div className="nav-actions">
