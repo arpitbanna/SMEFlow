@@ -1,5 +1,7 @@
+/* ===== IMPORTS ===== */
 import { motion } from 'framer-motion';
 
+/* ===== PAGE TRANSITION WRAPPER ===== */
 function PageTransition({ children }) {
     return (
         <motion.div
