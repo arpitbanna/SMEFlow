@@ -2,12 +2,20 @@
 import { createClient } from '@supabase/supabase-js';
 
 /**
- * Supabase credentials.
- * For production, move these to environment variables:
- *   VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
+ * Supabase credentials loaded from environment variables.
+ * Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file.
  */
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://rrklkeygiaiznrrmulpo.supabase.co';
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJya2xrZXlnaWFpem5ycm11bHBvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMyNTQxMTgsImV4cCI6MjA4ODgzMDExOH0.EAZZ7Znwjti8j-32mcxgjOqP9kV_qBXPORc-p360biw';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    console.error(
+        '⚠️ Missing Supabase credentials!\n' +
+        'Create a .env file in the project root with:\n' +
+        '  VITE_SUPABASE_URL=https://your-project.supabase.co\n' +
+        '  VITE_SUPABASE_ANON_KEY=your-anon-key'
+    );
+}
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 

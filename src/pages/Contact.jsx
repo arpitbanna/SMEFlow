@@ -1,8 +1,8 @@
 /* ===== IMPORTS ===== */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useToast } from '../context/ToastContext';
-import { postInquiry } from '../services/api';
+import { postInquiry, fetchFAQs } from '../services/api';
 
 /* ===== CONTACT PAGE COMPONENT ===== */
 function Contact() {
@@ -14,6 +14,21 @@ function Contact() {
         message: ''
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [faqs, setFaqs] = useState([]);
+    const [openFaqId, setOpenFaqId] = useState(null);
+
+    /* Load FAQs from Supabase */
+    useEffect(() => {
+        const loadFAQs = async () => {
+            try {
+                const data = await fetchFAQs();
+                if (data) setFaqs(data);
+            } catch (err) {
+                console.warn('No FAQs loaded');
+            }
+        };
+        loadFAQs();
+    }, []);
 
     const handleChange = (e) => {
         setFormData({
@@ -141,6 +156,81 @@ function Contact() {
                     </motion.div>
                 </motion.div>
             </motion.section>
+
+            {/* ===== FAQ SECTION ===== */}
+            {faqs.length > 0 && (
+                <motion.section className="section" {...fadeInOptions}>
+                    <h2>FREQUENTLY ASKED QUESTIONS</h2>
+                    <p style={{ marginBottom: '2rem' }}>Quick answers to common questions about SMEFlow.</p>
+
+                    <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+                        {faqs.map((faq) => (
+                            <motion.div 
+                                key={faq.id}
+                                initial={{ opacity: 0, y: 15 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.4 }}
+                                style={{
+                                    marginBottom: '0.8rem',
+                                    borderRadius: '12px',
+                                    border: '3px solid #CBBE9A',
+                                    overflow: 'hidden',
+                                    backgroundColor: '#2F5D6E',
+                                    boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
+                                }}
+                            >
+                                <button
+                                    onClick={() => setOpenFaqId(openFaqId === faq.id ? null : faq.id)}
+                                    style={{
+                                        width: '100%',
+                                        padding: '1.2rem 1.5rem',
+                                        background: openFaqId === faq.id ? 'rgba(203,190,154,0.15)' : 'none',
+                                        border: 'none',
+                                        color: '#F5F3E7',
+                                        fontWeight: '700',
+                                        fontSize: '1rem',
+                                        textAlign: 'left',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        fontFamily: "'Oswald', sans-serif",
+                                        letterSpacing: '1px',
+                                        transition: 'all 0.2s ease'
+                                    }}
+                                >
+                                    {faq.question}
+                                    <span style={{ 
+                                        transform: openFaqId === faq.id ? 'rotate(180deg)' : 'rotate(0deg)',
+                                        transition: 'transform 0.3s ease',
+                                        fontSize: '1.2rem',
+                                        color: '#CBBE9A',
+                                        flexShrink: 0,
+                                        marginLeft: '1rem'
+                                    }}>▾</span>
+                                </button>
+                                {openFaqId === faq.id && (
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ duration: 0.3 }}
+                                        style={{
+                                            padding: '0 1.5rem 1.2rem',
+                                            color: 'rgba(245, 243, 231, 0.85)',
+                                            fontSize: '0.95rem',
+                                            lineHeight: 1.7,
+                                            borderTop: '1px solid rgba(203,190,154,0.2)'
+                                        }}
+                                    >
+                                        <div style={{ paddingTop: '1rem' }}>{faq.answer}</div>
+                                    </motion.div>
+                                )}
+                            </motion.div>
+                        ))}
+                    </div>
+                </motion.section>
+            )}
         </>
     );
 }

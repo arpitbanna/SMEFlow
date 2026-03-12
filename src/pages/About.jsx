@@ -1,9 +1,28 @@
 /* ===== IMPORTS ===== */
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { fetchTeamMembers } from '../services/api';
 
 /* ===== ABOUT PAGE COMPONENT ===== */
 function About() {
+    const [team, setTeam] = useState([]);
+    const [teamLoading, setTeamLoading] = useState(true);
+
+    /* Load team members from Supabase */
+    useEffect(() => {
+        const loadTeam = async () => {
+            try {
+                const data = await fetchTeamMembers();
+                setTeam(data || []);
+            } catch (err) {
+                console.error('Error loading team members:', err);
+            } finally {
+                setTeamLoading(false);
+            }
+        };
+        loadTeam();
+    }, []);
+
     /* ===== ANIMATION VARIANTS ===== */
     const fadeInOptions = {
         initial: { opacity: 0, y: 30 },
@@ -93,43 +112,28 @@ function About() {
             <section className="team">
                 <motion.h2 {...fadeInOptions}>FOUNDING TEAM</motion.h2>
 
-                <motion.div
-                    className="team-grid"
-                    variants={staggerContainer}
-                    initial="initial"
-                    whileInView="whileInView"
-                    viewport={{ once: true, margin: "-100px" }}
-                >
-                    <motion.div className="team-card" variants={staggerItem}>
-                        <img src="/Person1.png" alt="Founder 1" className="team-img" />
-                        <div className="team-name">Vishu Kumar</div>
-                        <div className="team-role">Co-Founder & CEO</div>
-                        <p>
-                            Visionary leader driving product direction, strategic growth,
-                            and long-term expansion across global markets.
-                        </p>
+                {teamLoading ? (
+                    <p style={{ textAlign: 'center', color: '#CBBE9A' }}>Loading team...</p>
+                ) : team.length === 0 ? (
+                    <p style={{ textAlign: 'center', color: 'rgba(245,243,231,0.5)' }}>Team info coming soon.</p>
+                ) : (
+                    <motion.div
+                        className="team-grid"
+                        variants={staggerContainer}
+                        initial="initial"
+                        whileInView="whileInView"
+                        viewport={{ once: true, margin: "-100px" }}
+                    >
+                        {team.map((member) => (
+                            <motion.div className="team-card" variants={staggerItem} key={member.id}>
+                                <img src={member.image_url} alt={member.name} className="team-img" />
+                                <div className="team-name">{member.name}</div>
+                                <div className="team-role">{member.role}</div>
+                                <p>{member.bio}</p>
+                            </motion.div>
+                        ))}
                     </motion.div>
-
-                    <motion.div className="team-card" variants={staggerItem}>
-                        <img src="/Person2.png" alt="Founder 2" className="team-img" />
-                        <div className="team-name">Aryan Kumar</div>
-                        <div className="team-role">Co-Founder & CTO</div>
-                        <p>
-                            Architect of the platform’s technical infrastructure,
-                            automation systems, and scalable backend architecture.
-                        </p>
-                    </motion.div>
-
-                    <motion.div className="team-card" variants={staggerItem}>
-                        <img src="/Person3.png" alt="Founder 3" className="team-img" />
-                        <div className="team-name">Vaibhav Virat</div>
-                        <div className="team-role">Co-Founder & COO</div>
-                        <p>
-                            Oversees operations, execution strategy, and ensures
-                            seamless integration between product and customer success.
-                        </p>
-                    </motion.div>
-                </motion.div>
+                )}
             </section>
         </>
     );
